@@ -3,7 +3,6 @@ import csv
 input_filename = 'Resources/country_info.txt'
 countries = {}
 with open(input_filename, encoding='utf-8', newline='') as input_file:
-    input_file.readline()
     sample = input_file.read(400)
     new_dialect = csv.Sniffer().sniff(sample)
     input_file.seek(0)
@@ -13,8 +12,11 @@ with open(input_filename, encoding='utf-8', newline='') as input_file:
         name_of_country = row.get('Country')
         countries[name_of_country] = row
 
-for key, values in countries.items():
-    print(key, values)
+
+with open('CSV_DictReader_challenge.csv', 'w', encoding='utf-8', newline='') as csv_write:
+    writer = csv.writer(csv_write, quoting=csv.QUOTE_NONNUMERIC)
+    writer.writerows(countries.items())
+
 # countries = {}
 # with open(input_filename) as country_file:
 #     country_file.readline()
