@@ -1,7 +1,7 @@
 import os
 
-source_file = 'Resources/bm_test.txt'
-# source_file = 'Resources/vintage-halloween-bat.bmp'
+# source_file = 'Resources/bm_test.txt'
+source_file = 'Resources/vintage-halloween-bat.bmp'
 inverted_file = f'inverted-{source_file}'
 
 with open(source_file, 'rb') as bat:  # No encoding
@@ -64,7 +64,7 @@ with open(source_file, 'rb') as bat:  # No encoding
                 # Now read the remainder of the file (if any)
                 remainder = bat.read()
 
-                with open(inverted_file, 'wb') as inverted_bat:
+                with open('Resources/inverted-vintage-halloween-bat.bmp', 'wb') as inverted_bat:
                     print(f'\tWriting header')
                     inverted_bat.write(file_header)
                     print(f'\tWriting DIB header and other blocks')
