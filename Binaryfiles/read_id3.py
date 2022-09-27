@@ -94,19 +94,21 @@ with open(filename, 'rb') as mp3_file:
             print(f'Extended header, size is {ext_size} bytes.')
 
             # We're not interested in the extended header, seek past it.
-            Block_1
+            mp3_file.seek(ext_size, SEEK_CUR)
 
         while True:
             print('*' * 80)
             print(f'Current file position: {mp3_file.tell()}')
             # read 10 byte frame header
-            Block_2
+            frame_header = mp3_file.read(10)
+            frame_id = frame_header[:4]
 
             if frame_id in frame_types:
                 print(f'Found frame type: {frame_id}')
 
                 # We need the frame size.
-                Block_3
+                frame_size = int.from_bytes(frame_header[4:8], 'big')
+                print(f"frame size: {frame_size}")
 
                 # Only process text, WXXX and APIC frames
                 if frame_id.startswith(b'T'):  # a text field
@@ -131,27 +133,60 @@ with open(filename, 'rb') as mp3_file:
                     description_and_url = mp3_file.read(frame_size - 1)
 
                     # Split on 00 byte to get the 2 parts
-                    Block_4
+                    parts = description_and_url.split(b'\x00')
+                    description = parts[0].decode(encoding)
+                    url = parts[-1].decode('iso-8859-1')
+                    print(f'{frame_types[frame_id]}:')
+                    print(f'\tDescription: {description}')
+                    print(f'\tURL: {url}')
 
                 elif frame_id == b'APIC':
                     frame_data_start = mp3_file.tell()
                     print(f'APIC frame starts at {frame_data_start}')
 
                     # Get the encoding byte.
-                    encoding_byte = mp3_file.read(1)[0]                    encoding = id3_field_encodings[encoding_byte]
+                    encoding_byte = mp3_file.read(1)[0]
+                    encoding = id3_field_encodings[encoding_byte]
                     print(f'APIC text encoding: {encoding}')
 
                     # Next we have a null-terminated string.
-                    Block_5
+                    mime_type = read_c_string(mp3_file, 'iso-8859-1')
+                    if mime_type == '':
+                        mime_type = 'image/'
+                    print(f'Mime type: {mime_type}')
 
                     # read 1 byte picture type
-                    Block_6
+                    picture_type = int.from_bytes(mp3_file.read(1), 'big')
+                    # and get its human name
+                    apic_picture_name = apic_picture_types[picture_type]
+                    print(f'Found {apic_picture_name} image')
 
                     # Description is also a null-terminated string
-                    Block_7
+                    description = read_c_string(mp3_file, encoding)
+                    print(f'Image description: {description}')
 
                     # Now write the image to a new file.
-                    Block_8
+                    if mime_type.startswith('image/'):
+                        image_data_start = mp3_file.tell()
+                        print(f'Image data starts at: {image_data_start}')
+                        image_size = frame_size - (image_data_start - frame_data_start)
+                        print(f'Image size = {image_size}')
+                        image_data = mp3_file.read(image_size)
+
+                        # Create a file name from the picture name
+                        image_type = mime_type.split('/')[-1]
+
+                        # get filename part only (without the path)
+                        base_filename = path.split(filename)[1]
+
+                        # now remove the extension
+                        base_filename = path.splitext(base_filename)[0]
+
+                        picture_filename = f'{base_filename}_{apic_picture_name}.{image_type}'
+                        print(f'Writing image file {picture_filename}')
+
+                        with open(picture_filename, 'wb') as output_file:
+                            output_file.write(image_data)
 
                 else:
                     # Found a frame that we're not going to process.
