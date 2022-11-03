@@ -24,4 +24,4 @@ def list_directories(s):
         print(s + " does not exist.")
 
 
-list_directories('/home/sirrah/Downloads')
+list_directories('.')
