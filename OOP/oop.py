@@ -1,8 +1,9 @@
 class Kettle(object):
 
-    power_source = "electricity"
+    power_source = "electricity"    # a class attribute
+
     def __init__(self, make, price):
-        self.make = make
+        self.make = make            # an instance attribute
         self.price = price
         self.on = False
 
@@ -36,6 +37,13 @@ print()
 kenwood.power = 1.5
 print(kenwood.power)
 
+print("Switching to atomic power")
+Kettle.power_source = "Nuclear Reactor - Fissile"
 print(Kettle.power_source)
+print("switching kenwood to gas")
+kenwood.power_source = 'gas'
 print(kenwood.power_source)
 print(zojirushi.power_source)
+print(Kettle.__dict__)
+print(zojirushi.__dict__)
+print(kenwood.__dict__)
