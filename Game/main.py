@@ -1,12 +1,11 @@
-from enemy import Enemy, Troll, Vampire
+import enemy
+import player
 
+a = 3
+b = "tim"
+c = 1, 2, 3
 
-ugly_troll = Troll("Ug")
-uglier_troll = Troll("Urg")
-ugliest_troll = Troll("Ulg")
-vampire_1 = Vampire("Radluca")
-Vampire_2 = Vampire("Edward")
+print(a)
+print(b)
+print(c)
 
-while vampire_1.alive:
-    vampire_1.take_damage(1)
-    print(vampire_1)
