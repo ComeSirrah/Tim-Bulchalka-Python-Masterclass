@@ -17,7 +17,6 @@ class Duck(object):
     def __init__(self):
         self._wing = Wing(1.8)
 
-
     def walk(self):
         print("waddle waddle waddle")
 
@@ -30,10 +29,15 @@ class Duck(object):
     def fly(self):
         self._wing.fly()
 
+
+class Mallard(Duck):
+    pass
+
+
 class Penguin(object):
 
     def __init__(self):
-        pass
+        self.fly = self.aviate
 
     def walk(self):
         print("waddle waddle waddle, I can waddle too.")
@@ -44,15 +48,34 @@ class Penguin(object):
     def quack(self):
         print("Uh... I'm a penguin.")
 
+    def aviate(self):
+        print("I won the lottery and bought a learjet.")
 
-# def test_duck(duck):
-#     duck.walk()
-#     duck.swim()
-#     duck.quack()
+
+class Flock(object):
+    def __init__(self):
+        self.flock = []
+
+    def add_duck(self, *ducks: Duck) -> None:
+        for duck in ducks:
+            fly_method = getattr(duck, "fly", None)
+            if callable(fly_method):
+                self.flock.append(duck)
+            else:
+                raise TypeError(f"Cannot add duck, are you sure it's not a {str(type(duck).__name__)}?")
+
+    def migrate(self):
+        error = None
+        for duck in self.flock:
+            try:
+                duck.fly()
+            except AttributeError as e:
+                print("An attribute error has occurred")
+                error = e
+        if error:
+            raise error
+
 
 if __name__ == '__main__':
     donald = Duck()
     donald.fly()
-
-    # percy = Penguin()
-    # test_duck(percy)
