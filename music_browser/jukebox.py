@@ -22,26 +22,28 @@ class Scrollbox(tkinter.Listbox):
 
 class DataListBox(Scrollbox):
 
-    def __init__(self, window, connection, table, field, sort_order=(), **kwargs):
+    def __init__(self, window, connection, table, field, sort_order=(), **kwargs):  # initializing class
         # Scrollbox.__init__(self, window, **kwargs)  # Python 2
-        super().__init__(window, **kwargs)
+        super().__init__(window, **kwargs)  # initializing class as subclass of Scrollbox
 
-        self.linked_box = None
-        self.link_field = None
+        self.linked_box = None  # initializing method
+        self.link_field = None  # initializing method
+        self.link_value = None
 
-        self.cursor = connection.cursor()
-        self.table = table
-        self.field = field
+        self.cursor = connection.cursor()   # initializing cursor
+        self.table = table   # setting method equal to variable
+        self.field = field   # setting method equal to variable
 
-        self.bind('<<ListboxSelect>>', self.on_select)
 
-        self.sql_select = "SELECT " + self.field + ", _id" + " FROM " + self.table
+        self.bind('<<ListboxSelect>>', self.on_select)  # binding selected field of listbox to on_select method
+
+        self.sql_select = "SELECT " + self.field + ", _id" + " FROM " + self.table  # composing sql query statement
         if sort_order:
-            self.sql_sort = " ORDER BY " + ','.join(sort_order)
+            self.sql_sort = " ORDER BY " + ','.join(sort_order)     # sort if sort_order variable present
         else:
-            self.sql_sort = " ORDER BY " + self.field
+            self.sql_sort = " ORDER BY " + self.field   # default sort order
 
-    def clear(self):
+    def clear(self):                    # method to delete  data in listbox
         self.delete(0, tkinter.END)
 
     def link(self, widget, link_field):
@@ -49,6 +51,7 @@ class DataListBox(Scrollbox):
         widget.link_field = link_field
 
     def requery(self, link_value=None):
+        self.link_value = link_value
         if link_value and self.link_field:
             sql = self.sql_select + " WHERE " + self.link_field + "=?" + self.sql_sort
             print(sql)      # TODO delete this line
@@ -67,12 +70,17 @@ class DataListBox(Scrollbox):
 
     def on_select(self, event):
         if self.linked_box:
-            print(self is event.widget)     # TODO delete this line
             index = self.curselection()[0]
             value = self.get(index),
 
-            # get the artist ID from the database row
-            link_id = self.cursor.execute(self.sql_select + " WHERE " + self.field + "=?", value).fetchone()[1]
+            # get the ID from dataset row
+            #  Make sure we;re getting the correct one by including the link_value if appropriate
+            if self.link_value:
+                value = value[0], self.link_value
+                sql_where = " WHERE " + self.field + "=? AND " + self.link_field + "=?"
+            else:
+                sql_where = " WHERE " + self.field + "=?"
+            link_id = self.cursor.execute(self.sql_select + sql_where, value,).fetchone()[1]
             self.linked_box.requery(link_id)
 
 
